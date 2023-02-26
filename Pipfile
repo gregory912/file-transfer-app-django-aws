@@ -10,6 +10,9 @@ djangorestframework-simplejwt = "*"
 python-dotenv = "*"
 gunicorn = "*"
 psycopg2-binary = "*"
+pytest = "*"
+pytest-django = "*"
+faker = "*"
 
 [dev-packages]
 
