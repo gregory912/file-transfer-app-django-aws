@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Subscription, CustomSubscription, ImageSize
 
-# Register your models here.
+admin.site.register(Subscription)
+admin.site.register(CustomSubscription)
+admin.site.register(ImageSize)
