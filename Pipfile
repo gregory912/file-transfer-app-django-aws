@@ -13,6 +13,10 @@ psycopg2-binary = "*"
 pytest = "*"
 pytest-django = "*"
 faker = "*"
+pillow = "*"
+pydantic = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 
