@@ -12,13 +12,13 @@ class CreateNewPathsForImages:
     user: int
     sizes: list
 
-    def get_paths_for_images(self) -> list[str]:
+    def get_paths_for_images(self, name: str) -> list[str]:
         """
         The function returns a list with updated paths
         """
         list_of_paths = []
         for h, w in self.sizes:
-            path = self.base_path.replace('original', self._get_folder_name(h, w))
+            path = self.base_path.replace(name, self._get_folder_name(h, w))
             _, extension = os.path.splitext(path)
             list_of_paths.append(f"{os.path.dirname(path)}/{uuid.uuid4()}_{self.user}{extension}")
         return list_of_paths

@@ -17,6 +17,7 @@ pillow = "*"
 pydantic = "*"
 django-storages = "*"
 boto3 = "*"
+pytest-mock = "*"
 
 [dev-packages]
 

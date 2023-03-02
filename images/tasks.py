@@ -22,7 +22,7 @@ def save_resized_images_to_aws(image_url: str, user: User, image_instance: Image
             base_path=image_url[1:],
             user=user.id,
             sizes=image_sizes_instance.get_image_sizes({"user": user})
-        ).get_paths_for_images()
+        ).get_paths_for_images('original')
 
     paths_preparations_instance = PathsResizingUploadingImages(
         image_url[1:], user, image_instance, rough_paths, image_sizes_instance)

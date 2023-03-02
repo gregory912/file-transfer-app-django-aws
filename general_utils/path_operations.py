@@ -28,7 +28,7 @@ class PathDetails(ABC):
     def get_path_without_filename(self) -> str:
         """
         The function return full path without filename
-        '/home/user/Documents/project/file.txt' ---> /home/user/Documents/projekt
+        '/home/user/Documents/project/file.txt' ---> /home/user/Documents/project
         """
         return os.path.dirname(self.full_path)
 
