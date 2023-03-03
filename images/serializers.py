@@ -38,7 +38,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
         image_url = link_instance.url.url
 
-        save_resized_images_to_aws(image_url, validated_data['user'], image_instance)
+        save_resized_images_to_aws.delay(image_url, validated_data['user'].id, image_instance.id)
 
         return image_instance
 

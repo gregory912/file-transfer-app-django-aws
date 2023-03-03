@@ -18,6 +18,9 @@ pydantic = "*"
 django-storages = "*"
 boto3 = "*"
 pytest-mock = "*"
+celery = "*"
+flower = "*"
+redis = "*"
 
 [dev-packages]
 
