@@ -3,11 +3,11 @@ import mimetypes
 import boto3
 
 from config.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME
-from general_utils.aws_service.aws_operations import OperationsAWS
+from general_utils.aws_service.aws_operations import SaveOperationsAWS
 from general_utils.path_operations import PathDetails
 
 
-class OperationsAWSUploadResizedImages(OperationsAWS):
+class OperationsAWSUploadResizedImages(SaveOperationsAWS):
     """
     The class manages operations with the AWS service
     """

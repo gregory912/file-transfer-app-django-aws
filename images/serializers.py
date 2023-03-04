@@ -79,6 +79,7 @@ class LinkSerializer(serializers.ModelSerializer):
 
     size = ImageSizeSerializer(required=False)
     url = serializers.SerializerMethodField()
+    link_expiration_time = serializers.IntegerField()
 
     class Meta:
         model = Link
@@ -89,6 +90,23 @@ class LinkSerializer(serializers.ModelSerializer):
             'is_original',
             'link_expiration_time',
         ]
+
+    def update(self, instance: Link, validated_data: dict) -> Link:
+        """
+        The function update the link expiration_time field based on the data sent by the user
+        """
+        instance.link_expiration_time = validated_data.get('link_expiration_time', instance.link_expiration_time)
+        instance.save()
+        return instance
+
+    @staticmethod
+    def validate_link_expiration_time(value: int) -> int:
+        """
+        Validation whether the value sent for expiring links is in the appropriate range
+        """
+        if value < 300 or value > 30000:
+            raise serializers.ValidationError("The expiration time cannot be less than 300 and greater than 30000")
+        return value
 
     @staticmethod
     def get_url(obj) -> str:

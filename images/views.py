@@ -9,7 +9,9 @@ from django.shortcuts import get_object_or_404
 from .models import Image, Link, ImageSize
 from .serializers import ImageSerializer, LinkSerializer
 from subscriptions.data_from_subscriptions.user_subscription_details import DataBasedOnSubscription
-from general_utils.permissions import IsOwner
+from general_utils.permissions import IsOwner, IsOwnerLink
+from general_utils.aws_service.aws_operations import create_presigned_url
+from general_utils.path_operations import PathDetails
 
 
 class UploadImage(generics.ListCreateAPIView):
@@ -70,3 +72,43 @@ class ImageLinks(APIView):
         """
         return [LinkSerializer(image).data for image in links]
 
+
+class UpdateExpirationTime(generics.UpdateAPIView):
+    """
+    The class manages updating the link_expiration_time field for a given link
+    """
+    permission_classes = [IsOwnerLink]
+    queryset = Link.objects.all()
+    serializer_class = LinkSerializer
+
+
+class TimedLink(APIView):
+    """
+    The class manages to return an expiring link to a file
+    """
+    permission_classes = [IsOwnerLink]
+
+    def get(self, request: Request, pk: int) -> Response:
+        """
+        The function returns an expiring link to a file if the user has permission to access it
+        """
+        link_instance = self.get_object(pk)
+
+        user_subs_instance = DataBasedOnSubscription({"user": self.request.user})
+
+        if user_subs_instance.get_expiring_links_field():
+            url = PathDetails(link_instance.url.url).get_last_folder_with_filename()
+            link = create_presigned_url(url, link_instance.link_expiration_time)
+
+            return Response({"expiration_link": link}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Subscription does not allow expiring links"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, pk: int) -> Link:
+        """
+        The function returns Link object or a 404 error.
+        The function checks whether the user has access to the resource
+        """
+        obj = get_object_or_404(Link, id=pk)
+        self.check_object_permissions(self.request, obj)
+        return obj

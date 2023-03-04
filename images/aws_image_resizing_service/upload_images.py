@@ -2,7 +2,7 @@ import shutil
 
 from subscriptions.data_from_subscriptions.user_subscription_details import DataBasedOnSubscription
 from .image_resizing_operations import ResizeImage
-from .aws_operations import OperationsAWS
+from .aws_operations import SaveOperationsAWS
 from ..models import Link
 from subscriptions.models import ImageSize
 from general_utils.path_operations import PathDetails
@@ -26,7 +26,7 @@ class ManageResizingUploadingImages:
     A class that manages operations to create images based on subscription sizes,
     upload to AWS, and save to the database
     """
-    def __init__(self, paths: PathsResizingUploadingImages, resize_img: ResizeImage, aws_obj: OperationsAWS,
+    def __init__(self, paths: PathsResizingUploadingImages, resize_img: ResizeImage, aws_obj: SaveOperationsAWS,
                  logged_in_user: int, image: int, image_sizes_obj: DataBasedOnSubscription):
         self.paths = paths
         self.resize_img_obj = resize_img

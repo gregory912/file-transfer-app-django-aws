@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.validators import FileExtensionValidator
 
 from general_utils.models import TimeStampedModel
@@ -26,7 +26,10 @@ class Link(TimeStampedModel):
         validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])]
     )
     is_original = models.BooleanField(default=False)
-    link_expiration_time = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    link_expiration_time = models.IntegerField(
+        validators=[MinValueValidator(300), MaxValueValidator(30000)],
+        default=300
+    )
 
     def __str__(self):
         return f"{self.image.name} - {self.size}"
