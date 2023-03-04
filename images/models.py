@@ -14,6 +14,9 @@ class Image(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        unique_together = ('user', 'name')
+
 
 class Link(TimeStampedModel):
     image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name='links')

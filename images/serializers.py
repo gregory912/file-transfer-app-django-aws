@@ -5,8 +5,9 @@ import os
 from rest_framework import serializers
 from django.core.validators import FileExtensionValidator
 
-from .models import Image, Link
+from .models import Image, Link, ImageSize
 from .tasks import save_resized_images_to_aws
+from config.settings import AWS_STORAGE_BUCKET_NAME
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -21,7 +22,7 @@ class ImageSerializer(serializers.ModelSerializer):
             'image'
         ]
 
-    def create(self, validated_data: dict[str, str]) -> Image:
+    def create(self, validated_data: dict[str, any]) -> Image:
         """
         The function saves validated data to the database.
         The method for saving data on AWS will be called based on the uploaded file
@@ -42,6 +43,18 @@ class ImageSerializer(serializers.ModelSerializer):
 
         return image_instance
 
+    def validate(self, data: dict[str, any]) -> dict[str, any]:
+        """
+        The function checks if the user already has an image with this title
+        """
+        user = self.context['request'].user
+        name = data.get('name')
+
+        if Image.objects.filter(user=user, name=name).exists():
+            raise serializers.ValidationError("An image with the given title already exists")
+
+        return data
+
     @staticmethod
     def validate_image(value):
         """
@@ -50,3 +63,36 @@ class ImageSerializer(serializers.ModelSerializer):
         if re.search(r'[<>:"/\\|?*]', str(value)):
             raise serializers.ValidationError("The filename entered is not valid")
         return value
+
+
+class ImageSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageSize
+        fields = [
+            'id',
+            'height',
+            'width'
+        ]
+
+
+class LinkSerializer(serializers.ModelSerializer):
+
+    size = ImageSizeSerializer(required=False)
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Link
+        fields = [
+            'id',
+            'size',
+            'url',
+            'is_original',
+            'link_expiration_time',
+        ]
+
+    @staticmethod
+    def get_url(obj) -> str:
+        """
+        The function returns the full url to a resource on aws
+        """
+        return f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{obj.url}'

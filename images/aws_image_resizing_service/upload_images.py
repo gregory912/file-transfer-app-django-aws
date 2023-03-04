@@ -1,6 +1,6 @@
 import shutil
 
-from .image_sizes import ImageSizesBasedOnSubscription
+from subscriptions.data_from_subscriptions.user_subscription_details import DataBasedOnSubscription
 from .image_resizing_operations import ResizeImage
 from .aws_operations import OperationsAWS
 from ..models import Link
@@ -27,7 +27,7 @@ class ManageResizingUploadingImages:
     upload to AWS, and save to the database
     """
     def __init__(self, paths: PathsResizingUploadingImages, resize_img: ResizeImage, aws_obj: OperationsAWS,
-                 logged_in_user: int, image: int, image_sizes_obj: ImageSizesBasedOnSubscription):
+                 logged_in_user: int, image: int, image_sizes_obj: DataBasedOnSubscription):
         self.paths = paths
         self.resize_img_obj = resize_img
         self.aws_obj = aws_obj
@@ -41,7 +41,7 @@ class ManageResizingUploadingImages:
         """
         self.resize_img_obj.resize_images(
             self.paths.file_path,
-            self.image_sizes_obj.get_image_sizes({"user": self.logged_in_user}),
+            self.image_sizes_obj.get_image_sizes(),
             self.paths.rough_paths
         )
 
@@ -62,11 +62,19 @@ class ManageResizingUploadingImages:
         Saving paths to aws for newly created images to the database
         """
         link_instances = []
-        for path, size in zip(self.paths.paths_obj, self.image_sizes_obj.get_image_sizes(
-                {"user": self.logged_in_user})):
+        for path, size in zip(self.paths.paths_obj, self.image_sizes_obj.get_image_sizes()):
             image_size_instance, _ = ImageSize.objects.get_or_create(height=size[0], width=size[1])
 
             link_instances.append(
                 Link(image=self.image, size=image_size_instance, url=path.get_last_folder_with_filename()))
 
         Link.objects.bulk_create(link_instances)
+
+    def update_path_original_file(self) -> None:
+        """
+        Update url for original file to same as on aws
+        """
+        instance = Link.objects.get(image=self.image, is_original=True)
+        new_path = PathDetails(instance.url.url).get_last_folder_with_filename()
+        instance.url = new_path
+        instance.save()
